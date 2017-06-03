@@ -10,17 +10,18 @@ contract Corp {
 	mapping(address=>bool) Votes; // Maps shareholders to (Voted && VotedYay)
 	uint overflow; // Any wei that couldnt be distributed fairly
 	bool voting; // Whether or not there is a vote ongoing
-	bool votepassed; // Whether or not the Vote passed
+	bool public VotePassed; // Whether or not the Vote passed
 	uint voteends; // When the vote can be closed
 	uint constant maxduration = 1000; // The maximum number of seconds a vote can last
 	bool diluted; // Whether or not dilution was done after the vote passed
+	uint public DilutionPercentage; // How much to dilute by
 	
 	function Corp(uint InitialShares){
 	    TotalShares = InitialShares; // as given
 	    ShareHolders.push(msg.sender); // The creator is the first shareholder
 	    Shares[msg.sender] = InitialShares; // And he holds all the shares
 	    voting = false; // Start off not voting on anything
-	    votepassed = false; // And nothing passed
+	    VotePassed = false; // And nothing passed
 	    diluted = false;
 	    overflow= 0;
 	    // Of course, false/0 is the default value but nobody loves a rug being pulled out
@@ -101,13 +102,14 @@ contract Corp {
 	    
 	}
 	
-	function OpenVoting(uint duration){
+	function OpenVoting(uint duration, uint percentage){
 	    if(duration > maxduration){
 	        throw; // mainly so I dont lock myself out
 	    }
 	    voteends = now+duration;
 	    voting = true; // People can vote
-	    votepassed = false; // The current vote hasnt passed
+	    VotePassed = false; // The current vote hasnt passed
+	    DilutionPercentage = percentage;
 	}
 	
 	function CloseAndCount(){
@@ -124,11 +126,19 @@ contract Corp {
 	        }
 	    }
 	    if(votesyay > votesnay){ // it passed
-			votepassed = true;
+			VotePassed = true;
 	    } else{
-	    	votepassed = false; // Not actually necessary. Here for clarity
+	    	VotePassed = false; // Not actually necessary. Here for clarity
 	    }
 	    voting = false; // No longer voting
+	}
+
+	function Dilute(){
+		// Get the total profits from the past 30 days
+		// Calculate how many new shares to create
+		// Calculate the total valuation of the shares
+		// Calculate the cost per share
+		// Update globals. TotalShares wont be updated here, will be update on buy
 	}
 	
 }
