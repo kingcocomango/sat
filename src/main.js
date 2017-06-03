@@ -5,11 +5,16 @@ import { BrowserRouter as Router,Route, Switch} from "react-router-dom";
 import "../sass/styles.scss";
 import {GetCoinbase, CheckGetweb3 } from "./DappUtils.jsx";
 import Holder from "./Holder.jsx";
+import SharesCard from "./SharesCard.jsx";
 
 import NavigationDrawer from "react-md/lib/NavigationDrawers";
 import NavLink from "./NavLink.jsx"; // Utility class
 
 import WebFontLoader from "webfontloader";
+
+import TruffleContract from "truffle-contract";
+import CorpArtifacts from "./contracts/Corp.json";
+var Corp = TruffleContract(CorpArtifacts);
 
 
 const navItems = [{
@@ -41,7 +46,8 @@ class Web3wrapper extends Component {
 		super(props);
 		this.state = {
 			web3:null,
-			coinbase:null
+			coinbase:null,
+			inst:null
 		};
 	}
 	componentWillMount(){
@@ -53,21 +59,30 @@ class Web3wrapper extends Component {
 		let coinbase = GetCoinbase(web3);
 		if(!web3||!coinbase){
 			setTimeout(function(){caller.redoEth(caller);},100);
+			return;
 		}
 		caller.setState({web3: web3, coinbase:coinbase});
+		Corp.setProvider(web3.currentProvider);
+		Corp.deployed().then((instance)=>{console.log(instance); caller.setState({inst:instance});});
 	}
 	render(){
 		let web3 = this.state.web3;
 		let coinbase = this.state.coinbase;
+		let instance = this.state.inst;
 		let passonlocation = this.props.passon;
-		if(!web3 || !coinbase ){
+		if(!web3 || !coinbase || !instance){
 			return (
-				<p> No web3 or no account </p>
+				<p> No web3 or no account or loading instance </p>
 			);
 		} else{
 			return (
 					<Switch>
-						<Route exact path="/" location={passonlocation} render={(rprops) => <Holder {...rprops} web3={web3} coinbase={coinbase}/>}  />
+						<Route exact path="/" location={passonlocation} 
+						render={(rprops) => <Holder {...rprops} web3={web3} coinbase={coinbase} inst={instance}/>} 
+						/>
+						<Route path="/shares" location={passonlocation} 
+						render={(rprops) => <SharesCard {...rprops} web3={web3} coinbase={coinbase} inst={instance}/>} 
+						/>
 
 					</Switch>
 			);

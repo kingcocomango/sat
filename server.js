@@ -20,7 +20,8 @@ http.createServer(function (request, response) {
      // need to use path.normalize so people can"t access directories underneath baseDirectory
      var fsPath;
      console.log(requestUrl.pathname);
-     if(requestUrl.pathname==="/" || requestUrl.pathname==="" /* ||requestUrl.pathname==="/register" */){
+     if(requestUrl.pathname==="/" || requestUrl.pathname==="" /* ||requestUrl.pathname==="/register" */
+        || requestUrl.pathname==="/shares"){
         fsPath = baseDirectory+"index.html";
      } else{
          fsPath = baseDirectory+path.normalize(requestUrl.pathname);
