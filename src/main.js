@@ -6,6 +6,36 @@ import "../sass/styles.scss";
 import {GetCoinbase, CheckGetweb3 } from "./DappUtils.jsx";
 import Holder from "./Holder.jsx";
 
+import NavigationDrawer from "react-md/lib/NavigationDrawers";
+import NavLink from "./NavLink.jsx"; // Utility class
+
+import WebFontLoader from "webfontloader";
+
+
+const navItems = [{
+	exact: true,
+	label: "Home",
+	to: "/",
+	icon: "home",
+}, {
+	label: "Deposit",
+	to: "/deposit",
+	icon: "credit_card",
+}, {
+	label: "Profits",
+	to: "/profit",
+	icon: "account_balance_wallet",
+}, {
+	label: "Shares",
+	to: "/shares",
+	icon: "dashboard",
+}, {
+	label: "Invest",
+	to: "/invest",
+	icon: "euro_symbol",
+}
+];
+
 class Web3wrapper extends Component {
 	constructor(props){
 		super(props);
@@ -52,14 +82,30 @@ Web3wrapper.propTypes = {
 class App extends Component{
 	render() {
 		return (
-			<Route render={
-				({location}) => (
-					<Web3wrapper passon={location} />
-				)
-			}
+			<Route 
+				render={({ location }) => (
+					<NavigationDrawer
+						drawerTitle="Nav"
+						toolbarTitle="Corp Incorporated"
+						navItems={navItems.map(props => <NavLink {...props} key={props.to} />)}
+						drawerType={NavigationDrawer.DrawerTypes.TEMPORARY}
+					>
+
+						<Web3wrapper passon={location}/>
+
+					</NavigationDrawer>
+			)}
 			/>
 		);
 	}
 }
+
+
+
+WebFontLoader.load({
+	google: {
+		families: ["Roboto:300,400,500,700", "Material Icons"],
+	},
+});
 
 ReactDOM.render(<Router><App /></Router>, document.getElementById("root"));
