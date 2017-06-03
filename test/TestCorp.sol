@@ -7,9 +7,9 @@ import "../contracts/Corp.sol";
 contract TestCorp {
 
 
-  function testCorpCompiles() {
-    Corp corp = new Corp();
-  }
-  
+	function testCorpCompiles() {
+		Corp corp = new Corp();
+	}
+
 
 }
