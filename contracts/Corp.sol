@@ -13,9 +13,7 @@ contract Corp {
 	bool votepassed; // Whether or not the Vote passed
 	uint voteends; // When the vote can be closed
 	uint constant maxduration = 1000; // The maximum number of seconds a vote can last
-	// This is still entirely open to DDOS abuse from an angry shareholder
-	// Workarounds are only allowing a multisig to start a vote
-	// Or have a constantly ongoing consensus to start a vote
+	bool diluted; // Whether or not dilution was done after the vote passed
 	
 	function Corp(uint InitialShares){
 	    TotalShares = InitialShares; // as given
@@ -23,7 +21,9 @@ contract Corp {
 	    Shares[msg.sender] = InitialShares; // And he holds all the shares
 	    voting = false; // Start off not voting on anything
 	    votepassed = false; // And nothing passed
-	    // Of course, false is the default value but nobody loves a rug being pulled out
+	    diluted = false;
+	    overflow= 0;
+	    // Of course, false/0 is the default value but nobody loves a rug being pulled out
 	    // from underneath them.
 	}
 	
