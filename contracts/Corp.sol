@@ -27,6 +27,15 @@ contract Corp {
 	    // from underneath them.
 	}
 	
+	function FindShareholder(address Holder) returns (uint){
+		for(uint i=0;i<ShareHolders.length;i++){
+			if(ShareHolders[i]==Holder){
+				return i; // Return their position in the array. Unlikely we have more than 2^255 shareholders
+			}
+		}
+		throw; // It doesnt like failing
+	}
+
 	function CalcDay() constant returns(uint){
 	    uint curday = now / 86400;
 	    return curday % 30; // that gives us the index into the ringbuffer to use
@@ -69,15 +78,17 @@ contract Corp {
 	}
 	
 	function Transfer(uint amount, address target) {
-	    if(Shares[msg.sender] < amount){
-	        throw; // Cant transfer what you dont have
+	    if(Shares[msg.sender] < amount || amount==0){
+	        throw; // Cant transfer what you dont have, or nothing
 	    }
 	    Shares[msg.sender] -= amount; // Take from sender
 	    if(Shares[target]==0){ // They weren't a shareholder, so we need to add them
-	        // Its possible that they were at some point, and just had 0 shares
-	        // This isnt an issue aside from inflating some loops. Since this isnt for production
-	        // I'm not going to handle it actively.
 	        ShareHolders.push(target); // Added them
+	    }
+	    if(Shares[msg.sender]==0){
+	    	uint position = FindShareholder(msg.sender); // Cant fail because at this point we know they're a shareholder
+	    	ShareHolders[position] = ShareHolders[ShareHolders.length-1];// move the ultimate shareholder over this one
+	    	ShareHolders.length--; // And drop the duplicate. Now we cant have 0 share shareholders 
 	    }
 	    Shares[target] += amount; // Give to target
 	}
@@ -94,12 +105,30 @@ contract Corp {
 	    if(duration > maxduration){
 	        throw; // mainly so I dont lock myself out
 	    }
+	    voteends = now+duration;
 	    voting = true; // People can vote
 	    votepassed = false; // The current vote hasnt passed
 	}
 	
 	function CloseAndCount(){
-	    
+		if(now < voteends){
+			throw; // Not yet
+		}
+		uint votesyay; // Votes for yes
+		uint votesnay; // Votes for no
+	    for(uint i=0;i<ShareHolders.length;i++){
+	        if(Votes[ShareHolders[i]]==true){ //shareholder being handled this iteration votes yes
+	        	votesyay += Shares[ShareHolders[i]]; // Add that holders shares to the count
+	        } else{ // didn't vote, or voted no
+	        	votesnay += Shares[ShareHolders[i]]; // Add that holders shares to the count
+	        }
+	    }
+	    if(votesyay > votesnay){ // it passed
+			votepassed = true;
+	    } else{
+	    	votepassed = false; // Not actually necessary. Here for clarity
+	    }
+	    voting = false; // No longer voting
 	}
 	
 }
