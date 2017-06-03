@@ -5,9 +5,9 @@ contract Corp {
 	uint[30] public Profits; // A ringbuffer of profits
 	uint public TotalShares; // This should hold the total number of shares
 	address[] public ShareHolders; // Who has equity
-	mapping(address=>uint) Shares; // And how much do they have in shares
-	mapping(address=>uint) Dividends; // And in wei
-	mapping(address=>bool) Votes; // Maps shareholders to (Voted && VotedYay)
+	mapping(address=>uint) public Shares; // And how much do they have in shares
+	mapping(address=>uint) public Dividends; // And in wei
+	mapping(address=>bool) public Votes; // Maps shareholders to (Voted && VotedYay)
 	uint overflow; // Any wei that couldnt be distributed fairly
 	bool voting; // Whether or not there is a vote ongoing
 	bool public VotePassed; // Whether or not the Vote passed
@@ -17,6 +17,10 @@ contract Corp {
 	uint public AvailableShares; // How many shares are available to buy
 	uint public PricePerShare; // The cost in wei of a single share
 	
+	function NumHolders() constant returns (uint){
+		return ShareHolders.length;
+	}
+
 	function Corp(uint InitialShares){
 	    TotalShares = InitialShares; // as given
 	    ShareHolders.push(msg.sender); // The creator is the first shareholder
