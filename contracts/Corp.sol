@@ -50,4 +50,24 @@ contract Corp {
 	    
 	}
 	
+	function Withdraw() {
+	    uint Payable = Dividends[msg.sender]; // This is their profit
+	    Dividends[msg.sender] = 0; // We will send all of it
+	    msg.sender.transfer(Payable); // If it throws, all is well. Can't be DAO'd
+	}
+	
+	function Transfer(uint amount, address target) {
+	    if(Shares[msg.sender] < amount){
+	        throw; // Cant transfer what you dont have
+	    }
+	    Shares[msg.sender] -= amount; // Take from sender
+	    if(Shares[target]==0){ // They weren't a shareholder, so we need to add them
+	        // Its possible that they were at some point, and just had 0 shares
+	        // This isnt an issue aside from inflating some loops. Since this isnt for production
+	        // I'm not going to handle it actively.
+	        ShareHolders.push(target); // Added them
+	    }
+	    Shares[target] += amount; // Give to target
+	}
+	
 }
