@@ -8,9 +8,9 @@ function CheckGetweb3() {
 	}
 
 	// Checking if Web3 has been injected by the browser (Mist/MetaMask)
-	if (typeof window.web3 !== "undefined" && typeof Web3 !== "undefined") {
+	if (typeof Web3 !== "undefined") {
 		// Use Mist/MetaMask's provider
-		let newweb3 = new Web3(window.web3.currentProvider);
+		let newweb3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 		persistedweb3 = newweb3; // lemme just save this
 		return newweb3;
 	}

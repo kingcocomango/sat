@@ -1,5 +1,6 @@
 import React , {Component} from "react";
 import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
 import { BrowserRouter as Router,Route, Switch} from "react-router-dom";
 import "../sass/styles.scss";
 import {GetCoinbase, CheckGetweb3 } from "./DappUtils.jsx";
@@ -43,6 +44,10 @@ class Web3wrapper extends Component {
 		}
 	}
 }
+
+Web3wrapper.propTypes = {
+	passon: PropTypes.object
+};
 
 class App extends Component{
 	render() {
