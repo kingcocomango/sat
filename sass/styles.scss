@@ -1,0 +1,11 @@
+@import './node_modules/normalize-scss/sass/_normalize';
+@import './node_modules/react-md/src/scss/react-md';
+
+$md-secondary-color: $md-red-500;
+$md-primary-color: $md-cyan-50;
+
+@include react-md-everything;
+
+.IntroCard {
+	background-color: $md-teal-200;
+}
