@@ -31,6 +31,10 @@
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "no-console": "off"
+    },
+    "globals": {
+        "web3": true
     }
 }

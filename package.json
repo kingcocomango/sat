@@ -31,6 +31,8 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-md": "^1.0.15",
+    "react-router": "^4.1.1",
+    "react-router-dom": "^4.1.1",
     "sass-loader": "^6.0.5",
     "style-loader": "^0.18.1",
     "truffle-contract": "^2.0.1",
