@@ -13,7 +13,6 @@ contract Corp {
 	bool public VotePassed; // Whether or not the Vote passed
 	uint voteends; // When the vote can be closed
 	uint constant maxduration = 1000; // The maximum number of seconds a vote can last
-	bool diluted; // Whether or not dilution was done after the vote passed
 	uint public DilutionPercentage; // How much to dilute by
 	uint public AvailableShares; // How many shares are available to buy
 	uint public PricePerShare; // The cost in wei of a single share
@@ -24,7 +23,6 @@ contract Corp {
 	    Shares[msg.sender] = InitialShares; // And he holds all the shares
 	    voting = false; // Start off not voting on anything
 	    VotePassed = false; // And nothing passed
-	    diluted = false;
 	    overflow= 0;
 	    // Of course, false/0 is the default value but nobody loves a rug being pulled out
 	    // from underneath them.
@@ -105,8 +103,8 @@ contract Corp {
 	}
 	
 	function OpenVoting(uint duration, uint percentage){
-	    if(duration > maxduration){
-	        throw; // mainly so I dont lock myself out
+	    if(duration > maxduration || voting || VotePassed){ // mainly so I dont lock myself out
+	        throw; // Also so votes cant stack, or interfere with dilution
 	    }
 	    voteends = now+duration;
 	    voting = true; // People can vote
@@ -115,7 +113,7 @@ contract Corp {
 	}
 	
 	function CloseAndCount(){
-		if(now < voteends){
+		if(now < voteends || !voting){
 			throw; // Not yet
 		}
 		uint votesyay; // Votes for yes
@@ -136,6 +134,9 @@ contract Corp {
 	}
 
 	function Dilute(){
+		if(!VotePassed){
+			throw; // The vote didnt pass, or didnt happen
+		}
 		// Get the total profits from the past 30 days
 		uint profitsum;
 		uint newshares = (TotalShares/100)*DilutionPercentage; // I hope solc respects the brackets
@@ -149,6 +150,7 @@ contract Corp {
 		// Later on.
 		AvailableShares = newshares;
 		PricePerShare = shareprice;
+		VotePassed = false; // Voting is over
 	}
 
 	function BuyShares(uint amount) payable {
