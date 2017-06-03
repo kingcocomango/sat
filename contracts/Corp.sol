@@ -15,6 +15,8 @@ contract Corp {
 	uint constant maxduration = 1000; // The maximum number of seconds a vote can last
 	bool diluted; // Whether or not dilution was done after the vote passed
 	uint public DilutionPercentage; // How much to dilute by
+	uint public AvailableShares; // How many shares are available to buy
+	uint public PricePerShare; // The cost in wei of a single share
 	
 	function Corp(uint InitialShares){
 	    TotalShares = InitialShares; // as given
@@ -135,10 +137,32 @@ contract Corp {
 
 	function Dilute(){
 		// Get the total profits from the past 30 days
-		// Calculate how many new shares to create
-		// Calculate the total valuation of the shares
-		// Calculate the cost per share
-		// Update globals. TotalShares wont be updated here, will be update on buy
+		uint profitsum;
+		uint newshares = (TotalShares/100)*DilutionPercentage; // I hope solc respects the brackets
+		for(uint i=0; i<30; i++){
+			profitsum += Profits[i]; // Just a simple sum of the ringbuffer
+		}
+		uint totalprice = profitsum*100;
+		uint shareprice = totalprice / newshares;
+
+		// Usually the compiler would optimize these things away, but I'm vaguely wary of the optimizer so I do it by hand
+		// Later on.
+		AvailableShares = newshares;
+		PricePerShare = shareprice;
+	}
+
+	function BuyShares(uint amount) payable {
+		if(amount > AvailableShares || amount == 0){
+			throw; // Cant buy more than what exists, or nothing
+		}
+		AvailableShares -= amount; // No longer in the pool
+		TotalShares += amount; // There are new shares
+		if(Shares[msg.sender]!=0){ // They were already a shareholder
+			Shares[msg.sender] += amount;
+		} else{ // they're new and need to be added
+			ShareHolders.push(msg.sender); // They're a shareholder now
+			Shares[msg.sender] = amount; // And they have this much
+		}
 	}
 	
 }
