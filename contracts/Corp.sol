@@ -7,12 +7,24 @@ contract Corp {
 	address[] public ShareHolders; // Who has equity
 	mapping(address=>uint) Shares; // And how much do they have in shares
 	mapping(address=>uint) Dividends; // And in wei
+	mapping(address=>bool) Votes; // Maps shareholders to (Voted && VotedYay)
 	uint overflow; // Any wei that couldnt be distributed fairly
+	bool voting; // Whether or not there is a vote ongoing
+	bool votepassed; // Whether or not the Vote passed
+	uint voteends; // When the vote can be closed
+	uint constant maxduration = 1000; // The maximum number of seconds a vote can last
+	// This is still entirely open to DDOS abuse from an angry shareholder
+	// Workarounds are only allowing a multisig to start a vote
+	// Or have a constantly ongoing consensus to start a vote
 	
 	function Corp(uint InitialShares){
 	    TotalShares = InitialShares; // as given
 	    ShareHolders.push(msg.sender); // The creator is the first shareholder
 	    Shares[msg.sender] = InitialShares; // And he holds all the shares
+	    voting = false; // Start off not voting on anything
+	    votepassed = false; // And nothing passed
+	    // Of course, false is the default value but nobody loves a rug being pulled out
+	    // from underneath them.
 	}
 	
 	function CalcDay() constant returns(uint){
@@ -68,6 +80,26 @@ contract Corp {
 	        ShareHolders.push(target); // Added them
 	    }
 	    Shares[target] += amount; // Give to target
+	}
+	
+	function Vote(bool YayOrNay){
+	    if(!voting){
+	        throw; // You can only vote when voting is ongoing
+	    }
+	    Votes[msg.sender] = YayOrNay; // They can change their minds at any time
+	    
+	}
+	
+	function OpenVoting(uint duration){
+	    if(duration > maxduration){
+	        throw; // mainly so I dont lock myself out
+	    }
+	    voting = true; // People can vote
+	    votepassed = false; // The current vote hasnt passed
+	}
+	
+	function CloseAndCount(){
+	    
 	}
 	
 }
